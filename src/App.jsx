@@ -246,22 +246,7 @@ function LoginPage() {
 }
 
 function App() {
-  // Temporariamente renderizando o Dashboard diretamente para visualização
-  const mockUser = {
-    displayName: "João Silva",
-    firstName: "João",
-    lastName: "Silva",
-    email: "joao.silva@exemplo.com",
-    phone: "(11) 99999-9999",
-    company: "Tech Solutions Ltda",
-    sector: "Tecnologia",
-    companySize: "Pequena (10-49 funcionários)",
-    city: "São Paulo",
-    state: "SP",
-    photoURL: null
-  }
-  
-  return <Dashboard mockUser={mockUser} />
+  return <LoginPage />
 }
 
 export default App
