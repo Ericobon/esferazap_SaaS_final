@@ -4,8 +4,9 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { useAuth } from '@/hooks/useAuth.js'
 import { LogOut, User, Building, MapPin, Phone, Mail } from 'lucide-react'
 
-export function Dashboard() {
-  const { user, logout } = useAuth()
+export function Dashboard({ mockUser }) {
+  const { user: authUser, logout } = useAuth()
+  const user = mockUser || authUser
 
   const handleLogout = async () => {
     try {
