@@ -63,6 +63,14 @@ export function useAuth() {
 
   const signUpWithEmail = async (email, password, additionalData) => {
     try {
+      // Validação de campos obrigatórios
+      if (!additionalData.company?.trim()) {
+        throw new Error('Nome da empresa é obrigatório');
+      }
+      if (!additionalData.firstName?.trim() || !additionalData.lastName?.trim()) {
+        throw new Error('Nome completo é obrigatório');
+      }
+
       console.log('useAuth: Starting signUpWithEmail');
       setError(null);
       const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -75,55 +83,65 @@ export function useAuth() {
       });
       console.log('useAuth: Profile updated');
 
-      // Generate tenant ID
+      // Generate tenant ID with fallback
       const tenantId = additionalData.company
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+        .replace(/(^-|-$)/g, '') || `tenant-${user.uid.slice(0, 8)}`;
 
       // Save additional user data to Firestore
       console.log('useAuth: Saving to Firestore users collection');
-      await setDoc(doc(db, 'users', user.uid), {
-        firstName: additionalData.firstName,
-        lastName: additionalData.lastName,
-        email: user.email,
-        phone: additionalData.phone,
-        company: additionalData.company,
-        sector: additionalData.sector,
-        companySize: additionalData.companySize,
-        city: additionalData.city,
-        state: additionalData.state,
-        tenantId: tenantId,
-        role: 'admin',
-        isTenantAdmin: true,
-        onboardingCompleted: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      console.log('useAuth: User saved to Firestore');
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          firstName: additionalData.firstName,
+          lastName: additionalData.lastName,
+          email: user.email,
+          phone: additionalData.phone || '',
+          company: additionalData.company,
+          sector: additionalData.sector || '',
+          companySize: additionalData.companySize || '',
+          city: additionalData.city || '',
+          state: additionalData.state || '',
+          tenantId: tenantId,
+          role: 'admin',
+          isTenantAdmin: true,
+          onboardingCompleted: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        console.log('useAuth: User saved to Firestore');
+      } catch (firestoreError) {
+        console.error('Firestore user save error:', firestoreError);
+        throw new Error('Erro ao salvar perfil do usuário');
+      }
 
       // Create tenant document
-      const tenantRef = doc(db, 'tenants', tenantId);
-      const tenantDoc = await getDoc(tenantRef);
+      try {
+        const tenantRef = doc(db, 'tenants', tenantId);
+        const tenantDoc = await getDoc(tenantRef);
 
-      if (!tenantDoc.exists()) {
-        console.log('useAuth: Creating new tenant', tenantId);
-        await setDoc(tenantRef, {
-          name: additionalData.company,
-          adminUserId: user.uid,
-          sector: additionalData.sector,
-          companySize: additionalData.companySize,
-          location: {
-            city: additionalData.city,
-            state: additionalData.state
-          },
-          createdAt: new Date().toISOString(),
-          plan: 'free',
-          status: 'active'
-        });
-        console.log('useAuth: Tenant created');
+        if (!tenantDoc.exists()) {
+          console.log('useAuth: Creating new tenant', tenantId);
+          await setDoc(tenantRef, {
+            name: additionalData.company,
+            adminUserId: user.uid,
+            sector: additionalData.sector || '',
+            companySize: additionalData.companySize || '',
+            location: {
+              city: additionalData.city || '',
+              state: additionalData.state || ''
+            },
+            createdAt: new Date().toISOString(),
+            plan: 'free',
+            status: 'active'
+          });
+          console.log('useAuth: Tenant created');
+        }
+      } catch (tenantError) {
+        console.error('Tenant creation error:', tenantError);
+        // Não falhar - usuário foi criado com sucesso
       }
 
       return user;

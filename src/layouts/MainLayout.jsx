@@ -4,11 +4,22 @@ import {
     LayoutDashboard, MessageSquare, BookOpen, Settings,
     LogOut, Bell, Search, User, Menu, Database, Send
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export function MainLayout() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     const menuItems = [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -59,16 +70,23 @@ export function MainLayout() {
 
                     {/* User Profile */}
                     <div className="p-4 border-t border-white/5">
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer w-full"
+                        >
                             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center">
-                                <User className="w-5 h-5 text-white" />
+                                <span className="text-white text-sm font-medium">
+                                    {user?.displayName?.[0] || 'U'}
+                                </span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-white truncate">Admin User</p>
-                                <p className="text-xs text-slate-400 truncate">admin@esfera.com</p>
+                            <div className="flex-1 min-w-0 text-left">
+                                <p className="text-sm font-medium text-white truncate">
+                                    {user?.displayName || 'Usuário'}
+                                </p>
+                                <p className="text-xs text-slate-400 truncate">Sair da conta</p>
                             </div>
                             <LogOut className="w-4 h-4 text-slate-500 hover:text-red-400" />
-                        </div>
+                        </button>
                     </div>
                 </div>
             </aside>

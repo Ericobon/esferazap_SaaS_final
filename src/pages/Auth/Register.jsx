@@ -122,14 +122,30 @@ export function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar antes de submeter
+    if (!formData.company?.trim()) {
+      toast.error(language === 'pt' ? 'Nome da empresa é obrigatório' : 'Company name is required');
+      return;
+    }
+
     console.log('Submitting registration form...', formData);
     setLoading(true);
+
+    // Timeout de segurança - 30 segundos
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      toast.error(language === 'pt' ? 'Operação demorou muito. Tente novamente.' : 'Operation took too long. Please try again.');
+    }, 30000);
+
     try {
       await signUpWithEmail(formData.email, formData.password, formData);
+      clearTimeout(timeoutId);
       console.log('Registration success!');
       toast.success(language === 'pt' ? 'Conta criada com sucesso!' : 'Account created successfully!');
       navigate('/dashboard');
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Registration failed:', error);
       toast.error(language === 'pt' ? 'Erro ao criar conta: ' + error.message : 'Error creating account: ' + error.message);
     } finally {
