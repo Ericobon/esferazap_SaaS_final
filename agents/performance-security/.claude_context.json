@@ -1,0 +1,15 @@
+{
+  "agent_name": "performance-security",
+  "description": "Performance & Segurança",
+  "project_root": "../../",
+  "focus_areas": [
+    "vite.config.js",
+    "firestore.rules"
+  ],
+  "excluded_paths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "build"
+  ]
+}

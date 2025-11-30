@@ -1,0 +1,15 @@
+{
+  "agent_name": "playwright-e2e",
+  "description": "Testes E2E com Playwright (MCP configurado)",
+  "project_root": "../../",
+  "focus_areas": [
+    "tests/",
+    "playwright.config.js"
+  ],
+  "excluded_paths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "build"
+  ]
+}

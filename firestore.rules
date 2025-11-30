@@ -1,0 +1,157 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper function to check if user belongs to tenant
+    function belongsToTenant(tenantId) {
+      return isAuthenticated() && getUserData().tenantId == tenantId;
+    }
+
+    // Helper function to check if user is tenant admin
+    function isTenantAdmin(tenantId) {
+      return belongsToTenant(tenantId) && getUserData().isTenantAdmin == true;
+    }
+
+    // =====================================================
+    // USERS COLLECTION
+    // =====================================================
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can create their own data during registration
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can update their own data
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+
+      // Only the user themselves can delete their account
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // =====================================================
+    // TENANTS COLLECTION
+    // =====================================================
+    match /tenants/{tenantId} {
+      // Users can read their tenant data
+      allow read: if belongsToTenant(tenantId);
+
+      // Only during registration can a tenant be created
+      allow create: if isAuthenticated() &&
+                       request.resource.data.adminUserId == request.auth.uid;
+
+      // Only tenant admin can update tenant data
+      allow update: if isTenantAdmin(tenantId);
+
+      // No one can delete tenants (only via backend/admin)
+      allow delete: if false;
+    }
+
+    // =====================================================
+    // AGENT CONFIGS (per tenant)
+    // =====================================================
+    match /agent_configs/{tenantId} {
+      // Users from this tenant can read config
+      allow read: if belongsToTenant(tenantId);
+
+      // Only tenant admin can create/update config
+      allow create, update: if isTenantAdmin(tenantId);
+
+      // No one can delete configs
+      allow delete: if false;
+    }
+
+    // =====================================================
+    // KNOWLEDGE BASE (per tenant, subcollection)
+    // =====================================================
+    match /knowledge_base/{tenantId}/documents/{docId} {
+      // Users from this tenant can read knowledge base
+      allow read: if belongsToTenant(tenantId);
+
+      // Users from this tenant can create/update/delete documents
+      allow create, update, delete: if belongsToTenant(tenantId);
+    }
+
+    // =====================================================
+    // CONVERSATIONS (per tenant)
+    // =====================================================
+    match /conversations/{tenantId}/chats/{chatId} {
+      // Users from this tenant can read conversations
+      allow read: if belongsToTenant(tenantId);
+
+      // Users from this tenant can create conversations
+      allow create: if belongsToTenant(tenantId);
+
+      // Users from this tenant can update their conversations
+      allow update: if belongsToTenant(tenantId);
+
+      // Only tenant admin can delete conversations
+      allow delete: if isTenantAdmin(tenantId);
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read, write: if belongsToTenant(tenantId);
+      }
+    }
+
+    // =====================================================
+    // LEADS (per tenant)
+    // =====================================================
+    match /leads/{tenantId}/purchased/{leadId} {
+      // Users from this tenant can read their purchased leads
+      allow read: if belongsToTenant(tenantId);
+
+      // Users from this tenant can purchase leads
+      allow create: if belongsToTenant(tenantId);
+
+      // No updates or deletes on purchased leads
+      allow update, delete: if false;
+    }
+
+    // =====================================================
+    // WHATSAPP CONNECTIONS (per tenant)
+    // =====================================================
+    match /whatsapp_connections/{tenantId} {
+      // Users from this tenant can read connection status
+      allow read: if belongsToTenant(tenantId);
+
+      // Only tenant admin can configure WhatsApp
+      allow create, update: if isTenantAdmin(tenantId);
+
+      // No one can delete connections
+      allow delete: if false;
+    }
+
+    // =====================================================
+    // CAMPAIGNS (per tenant)
+    // =====================================================
+    match /campaigns/{tenantId}/list/{campaignId} {
+      // Users from this tenant can read campaigns
+      allow read: if belongsToTenant(tenantId);
+
+      // Users from this tenant can create/update campaigns
+      allow create, update: if belongsToTenant(tenantId);
+
+      // Only tenant admin can delete campaigns
+      allow delete: if isTenantAdmin(tenantId);
+    }
+
+    // =====================================================
+    // DEFAULT DENY ALL
+    // =====================================================
+    // Any other collection not explicitly allowed is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

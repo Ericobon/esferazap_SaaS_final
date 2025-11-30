@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label.jsx'
 import { useAuth } from '@/hooks/useAuth.js'
 import { Mail, User, Building, Phone, MapPin, Users } from 'lucide-react'
+import { toast } from 'sonner'
 
 const SECTORS = [
   'Tecnologia',
@@ -34,7 +35,7 @@ const COMPANY_SIZES = [
   'Grande (250+ funcionários)'
 ]
 
-export function RegisterForm({ onBack }) {
+export function RegisterForm({ onBack, onSuccess }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -73,14 +74,14 @@ export function RegisterForm({ onBack }) {
     if (!formData.lastName.trim()) newErrors.lastName = 'Sobrenome é obrigatório'
     if (!formData.email.trim()) newErrors.email = 'E-mail é obrigatório'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'E-mail inválido'
-    
+
     if (!formData.password) newErrors.password = 'Senha é obrigatória'
     else if (formData.password.length < 6) newErrors.password = 'Senha deve ter pelo menos 6 caracteres'
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Senhas não coincidem'
     }
-    
+
     if (!formData.phone.trim()) newErrors.phone = 'Telefone é obrigatório'
     if (!formData.company.trim()) newErrors.company = 'Nome da empresa é obrigatório'
     if (!formData.sector) newErrors.sector = 'Setor é obrigatório'
@@ -94,7 +95,7 @@ export function RegisterForm({ onBack }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
 
     setIsLoading(true)
@@ -109,12 +110,12 @@ export function RegisterForm({ onBack }) {
         city: formData.city,
         state: formData.state
       })
-      
-      // Success - user will be automatically logged in
-      alert('Conta criada com sucesso!')
+
+      toast.success('Conta criada com sucesso!')
+      if (onSuccess) onSuccess()
     } catch (error) {
       console.error('Registration error:', error)
-      alert('Erro ao criar conta. Tente novamente.')
+      toast.error(error.message || 'Erro ao criar conta. Tente novamente.')
     } finally {
       setIsLoading(false)
     }
@@ -136,7 +137,7 @@ export function RegisterForm({ onBack }) {
               <User className="w-5 h-5 mr-2" />
               Informações Pessoais
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">Nome *</Label>
@@ -150,7 +151,7 @@ export function RegisterForm({ onBack }) {
                 />
                 {errors.firstName && <p className="text-sm text-red-500">{errors.firstName}</p>}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="lastName">Sobrenome *</Label>
                 <Input
@@ -194,7 +195,7 @@ export function RegisterForm({ onBack }) {
                 />
                 {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
                 <Input
@@ -232,7 +233,7 @@ export function RegisterForm({ onBack }) {
               <Building className="w-5 h-5 mr-2" />
               Informações da Empresa
             </h3>
-            
+
             <div className="space-y-2">
               <Label htmlFor="company">Nome da Empresa *</Label>
               <Input
@@ -263,7 +264,7 @@ export function RegisterForm({ onBack }) {
                 </Select>
                 {errors.sector && <p className="text-sm text-red-500">{errors.sector}</p>}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="companySize">Tamanho da Empresa *</Label>
                 <Select value={formData.companySize} onValueChange={(value) => handleInputChange('companySize', value)}>
@@ -289,7 +290,7 @@ export function RegisterForm({ onBack }) {
               <MapPin className="w-5 h-5 mr-2" />
               Localização
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="city">Cidade *</Label>
@@ -303,7 +304,7 @@ export function RegisterForm({ onBack }) {
                 />
                 {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="state">Estado *</Label>
                 <Input
@@ -320,16 +321,16 @@ export function RegisterForm({ onBack }) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onBack}
               className="flex-1"
             >
               Voltar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 bg-blue-600 hover:bg-blue-700"
               disabled={isLoading}
             >

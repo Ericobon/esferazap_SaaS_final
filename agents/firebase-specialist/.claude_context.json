@@ -1,0 +1,16 @@
+{
+  "agent_name": "firebase-specialist",
+  "description": "Especialista Firebase & Auth",
+  "project_root": "../../",
+  "focus_areas": [
+    "src/firebase/",
+    "firestore.rules",
+    "firebase.json"
+  ],
+  "excluded_paths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "build"
+  ]
+}

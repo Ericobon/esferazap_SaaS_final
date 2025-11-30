@@ -1,0 +1,81 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to get user's tenant ID from Firestore
+    function getUserTenantId() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.tenantId;
+    }
+
+    // Helper function to check if user belongs to tenant
+    function belongsToTenant(tenantId) {
+      return isAuthenticated() && getUserTenantId() == tenantId;
+    }
+
+    // Helper function to validate file size (max 10MB)
+    function isValidSize() {
+      return request.resource.size <= 10 * 1024 * 1024;
+    }
+
+    // Helper function to validate file type
+    function isValidFileType() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+             request.resource.contentType.matches('text/plain') ||
+             request.resource.contentType.matches('text/markdown');
+    }
+
+    // =====================================================
+    // KNOWLEDGE BASE FILES (per tenant)
+    // Path: {tenantId}/knowledge/{filename}
+    // =====================================================
+    match /{tenantId}/knowledge/{allPaths=**} {
+      // Users from this tenant can read knowledge files
+      allow read: if belongsToTenant(tenantId);
+
+      // Users from this tenant can upload knowledge files
+      // Max 10MB, only PDF/DOCX/TXT/MD
+      allow create: if belongsToTenant(tenantId) &&
+                       isValidSize() &&
+                       isValidFileType();
+
+      // Users from this tenant can update/delete their files
+      allow update, delete: if belongsToTenant(tenantId);
+    }
+
+    // =====================================================
+    // PROFILE PICTURES (per user)
+    // Path: users/{userId}/profile/{filename}
+    // =====================================================
+    match /users/{userId}/profile/{filename} {
+      // Only the user can read/write their own profile picture
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // =====================================================
+    // TENANT LOGOS (per tenant)
+    // Path: {tenantId}/branding/{filename}
+    // =====================================================
+    match /{tenantId}/branding/{filename} {
+      // Users from tenant can read branding
+      allow read: if belongsToTenant(tenantId);
+
+      // Only tenant admin can upload branding (check in Firestore)
+      allow write: if belongsToTenant(tenantId) &&
+                      firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isTenantAdmin == true;
+    }
+
+    // =====================================================
+    // DEFAULT DENY ALL
+    // =====================================================
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

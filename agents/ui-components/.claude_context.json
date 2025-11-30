@@ -1,0 +1,15 @@
+{
+  "agent_name": "ui-components",
+  "description": "Especialista em Componentes UI",
+  "project_root": "../../",
+  "focus_areas": [
+    "src/components/ui/",
+    "src/components/"
+  ],
+  "excluded_paths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "build"
+  ]
+}

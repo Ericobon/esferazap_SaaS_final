@@ -1,0 +1,16 @@
+{
+  "agent_name": "backend-integration",
+  "description": "Especialista em Backend Integration",
+  "project_root": "../../",
+  "focus_areas": [
+    "src/services/",
+    "src/hooks/",
+    "src/contexts/"
+  ],
+  "excluded_paths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "build"
+  ]
+}
