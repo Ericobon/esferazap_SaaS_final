@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
     MessageSquare,
@@ -17,6 +17,7 @@ import { useState } from 'react';
 
 export function Sidebar({ className }) {
     const { logout, user } = useAuth();
+    const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
 
     const navItems = [
@@ -25,6 +26,7 @@ export function Sidebar({ className }) {
         { icon: Database, label: 'Knowledge Base', href: '/knowledge' },
         { icon: Bot, label: 'Agents', href: '/settings' },
         { icon: ShoppingCart, label: 'Buy Leads', href: '/leads' },
+        { icon: Settings, label: 'Admin Panel', href: '/admin' },
     ];
 
     return (
@@ -69,7 +71,10 @@ export function Sidebar({ className }) {
             <div className="p-4 border-t border-sidebar-border space-y-2">
                 {/* User Profile */}
                 {user && (
-                    <div className="px-2 py-3 rounded-lg bg-sidebar-accent/50 mb-2">
+                    <button
+                        onClick={() => navigate('/admin')}
+                        className="w-full px-2 py-3 rounded-lg bg-sidebar-accent/50 mb-2 hover:bg-sidebar-accent/70 transition-colors text-left"
+                    >
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
                                 {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
@@ -85,7 +90,7 @@ export function Sidebar({ className }) {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </button>
                 )}
 
                 <Button
@@ -97,7 +102,7 @@ export function Sidebar({ className }) {
                     onClick={() => logout()}
                 >
                     <LogOut className="w-5 h-5" />
-                    {!collapsed && <span className="ml-3">Logout</span>}
+                    {!collapsed && <span className="ml-3">Sair da Conta</span>}
                 </Button>
             </div>
         </aside>

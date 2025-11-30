@@ -93,8 +93,8 @@ export function Register() {
       toast.error(language === 'pt' ? 'Preencha todos os campos obrigatórios' : 'Please fill in all required fields');
       return false;
     }
-    if (formData.password.length < 6) {
-      toast.error(language === 'pt' ? 'A senha deve ter no mínimo 6 caracteres' : 'Password must be at least 6 characters');
+    if (formData.password.length < 8 || !/[A-Z]/.test(formData.password) || !/[a-z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      toast.error(language === 'pt' ? 'A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números.' : 'Password must be at least 8 characters, including uppercase, lowercase letters, and numbers.');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {

@@ -22,6 +22,8 @@ export function ChatPage() {
 
     // Mock data - Multi-tenant conversations
     const conversations = [
+        // Adicionando campo 'agentStatus' para governança
+
         {
             id: 1,
             clientId: 'client-001',
@@ -31,6 +33,7 @@ export function ChatPage() {
             timestamp: '10:45',
             unread: 2,
             status: 'active',
+            agentStatus: 'IA Ativa', // IA Ativa, Humano Ativo, IA Aguardando, Humano Requisitado
             channel: 'whatsapp',
             tags: ['lead', 'interesse-enterprise']
         },
@@ -43,6 +46,8 @@ export function ChatPage() {
             timestamp: '09:32',
             unread: 0,
             status: 'resolved',
+            agentStatus: 'Fechada',
+
             channel: 'whatsapp',
             tags: ['suporte']
         },
@@ -55,6 +60,8 @@ export function ChatPage() {
             timestamp: 'Ontem',
             unread: 1,
             status: 'waiting',
+            agentStatus: 'Humano Requisitado',
+
             channel: 'whatsapp',
             tags: ['demo', 'hot-lead']
         },
@@ -67,6 +74,7 @@ export function ChatPage() {
             timestamp: 'Ontem',
             unread: 0,
             status: 'active',
+            agentStatus: 'Humano Ativo',
             channel: 'webchat',
             tags: ['negociação']
         },
@@ -177,6 +185,9 @@ export function ChatPage() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h4 className="font-semibold truncate">{conv.clientName}</h4>
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${conv.agentStatus === 'IA Ativa' ? 'bg-blue-500/20 text-blue-400' : conv.agentStatus === 'Humano Requisitado' ? 'bg-red-500/20 text-red-400 animate-pulse' : conv.agentStatus === 'Humano Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                                            {conv.agentStatus.split(' ')[0]}
+                                        </span>
                                         <span className="text-xs text-[rgb(var(--text-muted))] flex-shrink-0 ml-2">
                                             {conv.timestamp}
                                         </span>
@@ -184,6 +195,9 @@ export function ChatPage() {
 
                                     <p className="text-sm text-[rgb(var(--text-muted))] truncate mb-2">
                                         {conv.lastMessage}
+                                    </p>
+                                    <p className="text-xs text-[rgb(var(--text-muted))]">
+                                        Status Agente: {conv.agentStatus}
                                     </p>
 
                                     <div className="flex items-center justify-between">
@@ -217,6 +231,21 @@ export function ChatPage() {
                     <>
                         {/* Chat Header */}
                         <div className="p-4 border-b border-[rgb(var(--border))] flex items-center justify-between">
+                            {/* Botões de Governança */}
+                            <div className="flex items-center gap-3">
+                                <button className="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1">
+                                    <Bot className="w-4 h-4" />
+                                    Ativar IA
+                                </button>
+                                <button className="px-3 py-1.5 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white flex items-center gap-1">
+                                    <User className="w-4 h-4" />
+                                    Intervir (Humano)
+                                </button>
+                                <button className="px-3 py-1.5 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center gap-1">
+                                    <Archive className="w-4 h-4" />
+                                    Encerrar
+                                </button>
+                            </div>
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] flex items-center justify-center">
                                     <span className="text-white font-bold text-sm">
@@ -230,15 +259,6 @@ export function ChatPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <button className="p-2 hover:bg-[rgb(var(--bg-tertiary))]/50 rounded-lg transition-colors">
-                                    <Phone className="w-5 h-5" />
-                                </button>
-                                <button className="p-2 hover:bg-[rgb(var(--bg-tertiary))]/50 rounded-lg transition-colors">
-                                    <Video className="w-5 h-5" />
-                                </button>
-                                <button className="p-2 hover:bg-[rgb(var(--bg-tertiary))]/50 rounded-lg transition-colors">
-                                    <Star className="w-5 h-5" />
-                                </button>
                                 <button className="p-2 hover:bg-[rgb(var(--bg-tertiary))]/50 rounded-lg transition-colors">
                                     <MoreVertical className="w-5 h-5" />
                                 </button>

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { MainLayout } from './layouts/MainLayout';
+import { AdminPanel } from './pages/Admin/AdminPanel';
 import { DashboardOverview } from './pages/Dashboard/DashboardOverview';
 import { LeadPurchase } from './pages/Leads/LeadPurchase';
 import { CampaignsPage } from './pages/Campaigns/CampaignsPage';
@@ -13,6 +14,7 @@ import { Loader2 } from 'lucide-react';
 const ChatPage = () => <div className="text-white">Chat Page (Coming Soon)</div>;
 const KnowledgeBase = () => <div className="text-white">Knowledge Base (Coming Soon)</div>;
 const Settings = () => <div className="text-white">Settings (Coming Soon)</div>;
+
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -47,6 +49,7 @@ export default function App() {
             <Route path="chat" element={<ChatPage />} />
             <Route path="knowledge" element={<KnowledgeBase />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="admin" element={<AdminPanel />} />
           </Route>
         </Routes>
       </Router>
