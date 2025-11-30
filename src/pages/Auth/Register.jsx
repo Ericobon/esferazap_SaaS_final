@@ -360,10 +360,13 @@ export function Register() {
                     <Check className={`w-6 h-6 mb-2 ${formData.whatsappType === 'official' ? 'text-purple-400' : 'text-slate-500'}`} />
                     <p className="font-semibold text-white mb-1">{t('register.config.official')}</p>
                   </button>
-                  <button type="button" onClick={() => setFormData({ ...formData, whatsappType: 'buy' })} className={`p-4 rounded-lg border-2 transition-all ${formData.whatsappType === 'buy' ? 'border-purple-500 bg-purple-500/10' : 'border-slate-700 hover:border-slate-600'}`}>
-                    <Zap className={`w-6 h-6 mb-2 ${formData.whatsappType === 'buy' ? 'text-purple-400' : 'text-slate-500'}`} />
-                    <p className="font-semibold text-white mb-1">{t('register.config.buy')}</p>
-                  </button>
+                  <div className="p-4 rounded-lg border-2 border-slate-800 bg-slate-900/50 opacity-50 cursor-not-allowed relative">
+                    <Zap className="w-6 h-6 mb-2 text-slate-600" />
+                    <p className="font-semibold text-slate-500 mb-1">{language === 'pt' ? 'Comprar Número' : 'Buy Number'}</p>
+                    <span className="absolute top-2 right-2 text-[10px] font-medium text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded-full">
+                      {language === 'pt' ? 'Em breve' : 'Coming soon'}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
